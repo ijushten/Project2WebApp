@@ -9,9 +9,12 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "bcryptjs": "latest",
+    "dotenv": "latest",
     "ejs": "latest",
     "express": "latest",
-    "express-session": "latest"
+    "express-session": "latest",
+    "mongoose": "latest"
   },
   "engines": {
     "node": ">=20.0.0"
