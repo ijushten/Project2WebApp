@@ -10,22 +10,42 @@
   <nav class="nav">
     <a class="logo" href="/">LessonAI</a>
     <div class="nav-links">
-      <a href="/signup">Sign Up</a>
       <a href="/signin">Sign In</a>
+      <a class="button" href="/signup">Sign Up</a>
     </div>
   </nav>
 
   <main class="hero">
     <section class="hero-text">
-      <h1>Create classroom lesson plans.</h1>
-      <p>LessonAI is a full stack app for generating and saving AI lesson plans.</p>
-      <a class="button" href="/signup">Get Started</a>
+      <h1>Create classroom lesson plans in seconds.</h1>
+      <p>LessonAI helps teachers generate lesson plans with objectives, activities, assessments, and exit tickets.</p>
+      <div>
+        <a class="button" href="/signup">Get Started</a>
+        <a class="button ghost" href="/signin">I already have an account</a>
+      </div>
     </section>
 
     <section class="preview-card">
-      <h2>Lesson preview</h2>
-      <p>Subject, topic, grade level, learning goal, and lesson activities will appear here.</p>
+      <h2>Lesson Plan Preview</h2>
+      <p><strong>Subject:</strong> Science</p>
+      <p><strong>Topic:</strong> Photosynthesis</p>
+      <p><strong>Sections:</strong> Objective, Warm-Up, Practice, Assessment</p>
     </section>
   </main>
+
+  <section class="features">
+    <article>
+      <h3>Secure accounts</h3>
+      <p>Users sign up and sign in before using the dashboard.</p>
+    </article>
+    <article>
+      <h3>AI generation</h3>
+      <p>The backend sends the form details to an AI API.</p>
+    </article>
+    <article>
+      <h3>Saved history</h3>
+      <p>Lesson plans are saved to MongoDB.</p>
+    </article>
+  </section>
 </body>
 </html>
