@@ -16,6 +16,10 @@ app.get("/signup", (req, res) => {
   res.render("signup", { title: "Sign Up", error: null, values: {} });
 });
 
+app.get("/signin", (req, res) => {
+  res.render("signin", { title: "Sign In", error: null, values: {} });
+});
+
 app.listen(PORT, () => {
   console.log(`LessonAI is running on port ${PORT}`);
 });

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="logo" href="/">LessonAI</a>
+    <div class="nav-links">
+      <a href="/signup">Sign Up</a>
+    </div>
+  </nav>
+
+  <main class="auth-page">
+    <section class="auth-card">
+      <h1>Welcome back</h1>
+      <p>Sign in to view your dashboard and lesson history.</p>
+
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+
+      <form action="/signin" method="POST" class="form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" value="<%= values.email || '' %>" placeholder="test@example.com" required>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Your password" required>
+
+        <button class="button full" type="submit">Sign In</button>
+      </form>
+
+      <p class="switch-link">Need an account? <a href="/signup">Sign up</a></p>
+    </section>
+  </main>
+</body>
+</html>
