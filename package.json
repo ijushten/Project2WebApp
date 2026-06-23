@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "ejs": "latest",
-    "express": "latest"
+    "express": "latest",
+    "express-session": "latest"
   },
   "engines": {
     "node": ">=20.0.0"
