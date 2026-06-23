@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="logo" href="/dashboard">LessonAI</a>
+    <div class="nav-links">
+      <form action="/logout" method="POST"><button type="submit">Logout</button></form>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="panel">
+      <h1>Generate a lesson plan</h1>
+      <% if (error) { %><div class="error"><%= error %></div><% } %>
+      <form action="/lessons" method="POST" class="form" id="lessonForm">
+        <label for="subject">Subject</label>
+        <input id="subject" name="subject" type="text" value="<%= values.subject || '' %>" placeholder="Math" required>
+
+        <label for="topic">Topic</label>
+        <input id="topic" name="topic" type="text" value="<%= values.topic || '' %>" placeholder="Adding fractions" required>
+
+        <label for="gradeLevel">Grade Level</label>
+        <input id="gradeLevel" name="gradeLevel" type="text" value="<%= values.gradeLevel || '' %>" placeholder="5th grade" required>
+
+        <label for="lessonLength">Lesson Length</label>
+        <input id="lessonLength" name="lessonLength" type="text" value="<%= values.lessonLength || '' %>" placeholder="45 minutes" required>
+
+        <label for="learningGoal">Learning Goal</label>
+        <textarea id="learningGoal" name="learningGoal" rows="4" required><%= values.learningGoal || '' %></textarea>
+
+        <button class="button" type="submit" id="generateButton">Generate Lesson Plan</button>
+      </form>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
