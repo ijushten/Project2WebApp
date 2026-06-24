@@ -11,6 +11,7 @@
   "dependencies": {
     "@google/genai": "latest",
     "bcryptjs": "latest",
+    "connect-mongo": "latest",
     "dotenv": "latest",
     "ejs": "latest",
     "express": "latest",
