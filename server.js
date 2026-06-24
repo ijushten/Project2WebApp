@@ -152,5 +152,17 @@ app.post("/lessons/:id/notes", requireAuth, async (req, res) => {
 });
 
 
+app.post("/lessons/:id/delete", requireAuth, async (req, res) => {
+  if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+    await LessonPlan.deleteOne({ _id: req.params.id, user: req.session.userId });
+  }
+
+  res.redirect("/history");
+});
+
+
+app.use((req, res) => {
+  res.status(404).render("not-found", { title: "Not Found" });
+});
 
 connectDatabase().then(() => app.listen(PORT, () => console.log(`LessonAI is running on port ${PORT}`)));

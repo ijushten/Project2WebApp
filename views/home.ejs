@@ -10,16 +10,25 @@
   <nav class="nav">
     <a class="logo" href="/">LessonAI</a>
     <div class="nav-links">
-      <a href="/signin">Sign In</a>
-      <a class="button" href="/signup">Sign Up</a>
+      <% if (currentUser) { %>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/history">History</a>
+        <form action="/logout" method="POST">
+          <button class="nav-button" type="submit">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/signin">Sign In</a>
+        <a class="button small" href="/signup">Sign Up</a>
+      <% } %>
     </div>
   </nav>
 
   <main class="hero">
     <section class="hero-text">
+      <p class="eyebrow">AI lesson planning web app</p>
       <h1>Create classroom lesson plans in seconds.</h1>
-      <p>LessonAI helps teachers generate lesson plans with objectives, activities, assessments, and exit tickets.</p>
-      <div>
+      <p class="hero-copy">LessonAI helps teachers and students generate lesson plans with objectives, activities, assessments, and exit tickets using Google Gemini.</p>
+      <div class="hero-actions">
         <a class="button" href="/signup">Get Started</a>
         <a class="button ghost" href="/signin">I already have an account</a>
       </div>
@@ -27,24 +36,33 @@
 
     <section class="preview-card">
       <h2>Lesson Plan Preview</h2>
-      <p><strong>Subject:</strong> Science</p>
-      <p><strong>Topic:</strong> Photosynthesis</p>
-      <p><strong>Sections:</strong> Objective, Warm-Up, Practice, Assessment</p>
+      <div class="preview-item">
+        <span>Subject</span>
+        <strong>Science</strong>
+      </div>
+      <div class="preview-item">
+        <span>Topic</span>
+        <strong>Photosynthesis</strong>
+      </div>
+      <div class="preview-item">
+        <span>Generated Sections</span>
+        <strong>Objective, Warm-Up, Practice, Assessment</strong>
+      </div>
     </section>
   </main>
 
   <section class="features">
     <article>
       <h3>Secure accounts</h3>
-      <p>Users sign up and sign in before using the dashboard.</p>
+      <p>Users sign up and sign in before accessing the lesson dashboard.</p>
     </article>
     <article>
       <h3>AI generation</h3>
-      <p>The backend sends the form details to an AI API.</p>
+      <p>The backend sends the lesson request to Gemini and displays the response.</p>
     </article>
     <article>
       <h3>Saved history</h3>
-      <p>Lesson plans are saved to MongoDB.</p>
+      <p>Lesson plans are saved to MongoDB so users can read, update, and delete them.</p>
     </article>
   </section>
 </body>
