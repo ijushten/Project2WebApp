@@ -6,6 +6,7 @@ import { connectDatabase } from "./src/db.js";
 import { requireAuth, redirectIfLoggedIn } from "./src/auth.js";
 import User from "./src/models/User.js";
 import LessonPlan from "./src/models/LessonPlan.js";
+import mongoose from "mongoose";
 
 dotenv.config();
 const app = express();
@@ -114,7 +115,7 @@ app.post("/lessons", requireAuth, async (req, res) => {
       ...values,
       planText
     });
-    res.redirect("/history");
+    res.redirect(`/lessons/${lesson._id}`);
   } catch (error) {
     console.error(error);
     res.status(500).render("dashboard", { title: "Dashboard", error: error.message || "The lesson could not be generated.", values, recentLessons });
@@ -127,6 +128,20 @@ app.get("/history", requireAuth, async (req, res) => {
   res.render("history", { title: "History", lessons });
 });
 
+
+app.get("/lessons/:id", requireAuth, async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).render("not-found", { title: "Not Found" });
+  }
+
+  const lesson = await LessonPlan.findOne({ _id: req.params.id, user: req.session.userId });
+
+  if (!lesson) {
+    return res.status(404).render("not-found", { title: "Not Found" });
+  }
+
+  res.render("lesson", { title: lesson.title, lesson });
+});
 
 
 

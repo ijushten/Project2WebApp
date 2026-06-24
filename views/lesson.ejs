@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="logo" href="/dashboard">LessonAI</a>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/history">History</a>
+      <form action="/logout" method="POST">
+        <button class="nav-button" type="submit">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow"><%= lesson.subject %></p>
+        <h1><%= lesson.title %></h1>
+        <p class="muted"><%= lesson.gradeLevel %> • <%= lesson.lessonLength %> • <%= lesson.lessonStyle %></p>
+      </div>
+      <a class="button small" href="/history">Back to History</a>
+    </div>
+
+    <section class="lesson-meta">
+      <article>
+        <span>Topic</span>
+        <strong><%= lesson.topic %></strong>
+      </article>
+      <article>
+        <span>Learning Goal</span>
+        <strong><%= lesson.learningGoal %></strong>
+      </article>
+    </section>
+
+    <section class="panel lesson-output">
+      <h2>Generated Lesson Plan</h2>
+      <pre><%= lesson.planText %></pre>
+    </section>
+
+    <section class="panel notes-panel">
+      <h2>Teacher Notes</h2>
+      <p class="muted">Use this section to update your own notes for the lesson.</p>
+      <form action="/lessons/<%= lesson._id %>/notes" method="POST" class="form">
+        <textarea name="notes" rows="5" placeholder="Add reminders, edits, or classroom notes here."><%= lesson.notes || '' %></textarea>
+        <button class="button" type="submit">Save Notes</button>
+      </form>
+    </section>
+
+    <form action="/lessons/<%= lesson._id %>/delete" method="POST" class="delete-form bottom-delete">
+      <button class="danger-button" type="submit">Delete This Lesson</button>
+    </form>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
