@@ -9,6 +9,7 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
+    "@google/genai": "latest",
     "bcryptjs": "latest",
     "dotenv": "latest",
     "ejs": "latest",

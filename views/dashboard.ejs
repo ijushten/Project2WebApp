@@ -10,34 +10,84 @@
   <nav class="nav">
     <a class="logo" href="/dashboard">LessonAI</a>
     <div class="nav-links">
-      <form action="/logout" method="POST"><button type="submit">Logout</button></form>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/history">History</a>
+      <form action="/logout" method="POST">
+        <button class="nav-button" type="submit">Logout</button>
+      </form>
     </div>
   </nav>
 
-  <main class="container">
-    <section class="panel">
+  <main class="page-grid">
+    <section class="panel large-panel">
+      <p class="eyebrow">Welcome, <%= currentUser.username %></p>
       <h1>Generate a lesson plan</h1>
-      <% if (error) { %><div class="error"><%= error %></div><% } %>
-      <form action="/lessons" method="POST" class="form" id="lessonForm">
-        <label for="subject">Subject</label>
-        <input id="subject" name="subject" type="text" value="<%= values.subject || '' %>" placeholder="Math" required>
+      <p>Fill out the form and Gemini will create a full classroom lesson plan.</p>
 
-        <label for="topic">Topic</label>
-        <input id="topic" name="topic" type="text" value="<%= values.topic || '' %>" placeholder="Adding fractions" required>
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
 
-        <label for="gradeLevel">Grade Level</label>
-        <input id="gradeLevel" name="gradeLevel" type="text" value="<%= values.gradeLevel || '' %>" placeholder="5th grade" required>
+      <form action="/lessons" method="POST" class="form lesson-form" id="lessonForm">
+        <div class="two-column">
+          <div>
+            <label for="subject">Subject</label>
+            <input id="subject" name="subject" type="text" value="<%= values.subject || '' %>" placeholder="Math" required>
+          </div>
+          <div>
+            <label for="topic">Topic</label>
+            <input id="topic" name="topic" type="text" value="<%= values.topic || '' %>" placeholder="Adding fractions" required>
+          </div>
+        </div>
 
-        <label for="lessonLength">Lesson Length</label>
-        <input id="lessonLength" name="lessonLength" type="text" value="<%= values.lessonLength || '' %>" placeholder="45 minutes" required>
+        <div class="two-column">
+          <div>
+            <label for="gradeLevel">Grade Level</label>
+            <input id="gradeLevel" name="gradeLevel" type="text" value="<%= values.gradeLevel || '' %>" placeholder="5th grade" required>
+          </div>
+          <div>
+            <label for="lessonLength">Lesson Length</label>
+            <input id="lessonLength" name="lessonLength" type="text" value="<%= values.lessonLength || '' %>" placeholder="45 minutes" required>
+          </div>
+        </div>
 
         <label for="learningGoal">Learning Goal</label>
-        <textarea id="learningGoal" name="learningGoal" rows="4" required><%= values.learningGoal || '' %></textarea>
+        <textarea id="learningGoal" name="learningGoal" rows="4" placeholder="Students will learn how to add fractions with unlike denominators." required><%= values.learningGoal || '' %></textarea>
 
-        <button class="button" type="submit" id="generateButton">Generate Lesson Plan</button>
+        <label for="lessonStyle">Teaching Style</label>
+        <select id="lessonStyle" name="lessonStyle" required>
+          <option value="">Choose a style</option>
+          <option value="Beginner friendly" <%= values.lessonStyle === 'Beginner friendly' ? 'selected' : '' %>>Beginner friendly</option>
+          <option value="Interactive group activity" <%= values.lessonStyle === 'Interactive group activity' ? 'selected' : '' %>>Interactive group activity</option>
+          <option value="Hands-on practice" <%= values.lessonStyle === 'Hands-on practice' ? 'selected' : '' %>>Hands-on practice</option>
+          <option value="Test review" <%= values.lessonStyle === 'Test review' ? 'selected' : '' %>>Test review</option>
+        </select>
+
+        <button class="button full" type="submit" id="generateButton">Generate Lesson Plan</button>
       </form>
     </section>
+
+    <aside class="panel side-panel">
+      <div class="side-header">
+        <h2>Recent plans</h2>
+        <a href="/history">View all</a>
+      </div>
+
+      <% if (recentLessons.length === 0) { %>
+        <p class="muted">No lesson plans yet. Generate your first one.</p>
+      <% } else { %>
+        <div class="lesson-list compact-list">
+          <% recentLessons.forEach((lesson) => { %>
+            <a class="lesson-card" href="/lessons/<%= lesson._id %>">
+              <strong><%= lesson.title %></strong>
+              <span><%= lesson.gradeLevel %> • <%= lesson.lessonLength %></span>
+            </a>
+          <% }) %>
+        </div>
+      <% } %>
+    </aside>
   </main>
+
   <script src="/app.js"></script>
 </body>
 </html>
