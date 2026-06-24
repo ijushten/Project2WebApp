@@ -122,7 +122,7 @@ npm install
 
 
 
-MONGODB_URI=mongodb+srv://justin_lance:csci355pass!@cluster0.1vvpikt.mongodb.net/?appName=Cluster0
+MONGODB_URI=...
 MONGODB_DB=cs355
 GEMINI_API_KEY=...
 SESSION_SECRET=make_this_a_long_random_secret
