@@ -21,7 +21,7 @@ app.set("views", "views");
 app.set("trust proxy", 1);
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static("public", { index: false }));
 
 const sessionConfig = {
   secret: process.env.SESSION_SECRET || "dev_secret_change_me",

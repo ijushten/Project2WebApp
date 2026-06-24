@@ -1,7 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
 
+class LessonAiApiError extends Error {
+  constructor(message, statusCode = 500) {
+    super(message);
+    this.name = "LessonAiApiError";
+    this.statusCode = statusCode;
+  }
+}
+
 function clean(value) {
   return String(value || "").trim();
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function buildPrompt(details) {
@@ -31,22 +43,145 @@ Format the answer with these exact section headings:
 Keep it practical, classroom-friendly, and easy for a student teacher to explain.`;
 }
 
+function readStatusCode(error) {
+  const directCode = error?.status || error?.statusCode || error?.code;
+
+  if (typeof directCode === "number") {
+    return directCode;
+  }
+
+  const text = `${error?.message || ""} ${error?.cause?.message || ""}`;
+  const match = text.match(/"code"\s*:\s*(\d{3})|\b(\d{3})\b/);
+
+  if (match) {
+    return Number(match[1] || match[2]);
+  }
+
+  return null;
+}
+
+function readErrorText(error) {
+  return `${error?.message || ""} ${error?.cause?.message || ""}`.toLowerCase();
+}
+
+function isRetryableGeminiError(error) {
+  const statusCode = readStatusCode(error);
+  const text = readErrorText(error);
+
+  return (
+    statusCode === 429 ||
+    statusCode === 500 ||
+    statusCode === 502 ||
+    statusCode === 503 ||
+    statusCode === 504 ||
+    text.includes("unavailable") ||
+    text.includes("overloaded") ||
+    text.includes("high demand") ||
+    text.includes("resource exhausted")
+  );
+}
+
+function makeFriendlyGeminiError(error) {
+  const statusCode = readStatusCode(error);
+  const text = readErrorText(error);
+
+  if (statusCode === 401 || statusCode === 403 || text.includes("api key")) {
+    return new LessonAiApiError(
+      "The AI API key is missing or invalid. Check GEMINI_API_KEY in Render Environment Variables.",
+      500
+    );
+  }
+
+  if (statusCode === 404 || text.includes("not found") || text.includes("model")) {
+    return new LessonAiApiError(
+      "The selected Gemini model is not available. Try setting GEMINI_MODEL to gemini-2.5-flash-lite in Render.",
+      500
+    );
+  }
+
+  if (statusCode === 429 || text.includes("quota") || text.includes("resource exhausted")) {
+    return new LessonAiApiError(
+      "The AI service is receiving too many requests right now. Please wait a minute and try again.",
+      429
+    );
+  }
+
+  if (statusCode === 503 || text.includes("unavailable") || text.includes("overloaded") || text.includes("high demand")) {
+    return new LessonAiApiError(
+      "The AI model is busy right now. Please try again in a minute.",
+      503
+    );
+  }
+
+  return new LessonAiApiError(
+    "The lesson could not be generated right now. Please try again.",
+    500
+  );
+}
+
+function getModelChoices() {
+  const primaryModel = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+  const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash-lite";
+
+  return [...new Set([primaryModel, fallbackModel])];
+}
+
+async function generateWithModel(ai, model, prompt) {
+  const maxAttempts = 3;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await ai.models.generateContent({ model, contents: prompt });
+      const text = response.text || "";
+
+      if (!text.trim()) {
+        throw new LessonAiApiError("Gemini returned an empty lesson plan. Try again with a more specific topic.", 500);
+      }
+
+      return text.trim();
+    } catch (error) {
+      if (error instanceof LessonAiApiError) {
+        throw error;
+      }
+
+      const shouldRetry = isRetryableGeminiError(error);
+      const isLastAttempt = attempt === maxAttempts;
+
+      if (!shouldRetry || isLastAttempt) {
+        throw error;
+      }
+
+      await sleep(attempt * 1500);
+    }
+  }
+}
+
 export async function generateLessonPlan(details) {
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is missing. Add it to your .env file or Render environment variables.");
+    throw new LessonAiApiError(
+      "GEMINI_API_KEY is missing. Add it to your .env file or Render environment variables.",
+      500
+    );
   }
 
   const ai = new GoogleGenAI({ apiKey });
   const prompt = buildPrompt(details);
-  const response = await ai.models.generateContent({ model, contents: prompt });
-  const text = response.text || "";
+  const models = getModelChoices();
+  let lastError;
 
-  if (!text.trim()) {
-    throw new Error("Gemini returned an empty lesson plan. Try again with a more specific topic.");
+  for (const model of models) {
+    try {
+      return await generateWithModel(ai, model, prompt);
+    } catch (error) {
+      lastError = error;
+
+      if (!isRetryableGeminiError(error)) {
+        break;
+      }
+    }
   }
 
-  return text.trim();
+  throw makeFriendlyGeminiError(lastError);
 }
