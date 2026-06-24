@@ -133,6 +133,24 @@ app.get("/lessons/:id", requireAuth, async (req, res) => {
 });
 
 
+app.post("/lessons/:id/notes", requireAuth, async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).render("not-found", { title: "Not Found" });
+  }
+
+  const lesson = await LessonPlan.findOneAndUpdate(
+    { _id: req.params.id, user: req.session.userId },
+    { notes: clean(req.body.notes) },
+    { new: true }
+  );
+
+  if (!lesson) {
+    return res.status(404).render("not-found", { title: "Not Found" });
+  }
+
+  res.redirect(`/lessons/${lesson._id}`);
+});
+
 
 
 connectDatabase().then(() => app.listen(PORT, () => console.log(`LessonAI is running on port ${PORT}`)));
