@@ -6,6 +6,7 @@ import { connectDatabase } from "./src/db.js";
 import { requireAuth, redirectIfLoggedIn } from "./src/auth.js";
 import User from "./src/models/User.js";
 import LessonPlan from "./src/models/LessonPlan.js";
+import { generateLessonPlan } from "./src/gemini.js";
 import mongoose from "mongoose";
 
 dotenv.config();
