@@ -122,6 +122,11 @@ app.post("/lessons", requireAuth, async (req, res) => {
 });
 
 
+app.get("/history", requireAuth, async (req, res) => {
+  const lessons = await LessonPlan.find({ user: req.session.userId }).sort({ createdAt: -1 });
+  res.render("history", { title: "History", lessons });
+});
+
 
 
 

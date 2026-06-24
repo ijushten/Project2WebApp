@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="logo" href="/dashboard">LessonAI</a>
+    <div class="nav-links">
+      <a href="/dashboard">Dashboard</a>
+      <a href="/history">History</a>
+      <form action="/logout" method="POST">
+        <button class="nav-button" type="submit">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">Saved work</p>
+        <h1>Lesson history</h1>
+      </div>
+      <a class="button small" href="/dashboard">New Lesson</a>
+    </div>
+
+    <% if (lessons.length === 0) { %>
+      <section class="empty-state">
+        <h2>No saved lessons yet</h2>
+        <p>Create your first AI lesson plan from the dashboard.</p>
+        <a class="button" href="/dashboard">Go to Dashboard</a>
+      </section>
+    <% } else { %>
+      <section class="lesson-list">
+        <% lessons.forEach((lesson) => { %>
+          <article class="lesson-row">
+            <div>
+              <h2><a href="/lessons/<%= lesson._id %>"><%= lesson.title %></a></h2>
+              <p><%= lesson.gradeLevel %> • <%= lesson.lessonLength %> • <%= lesson.lessonStyle %></p>
+              <span class="date"><%= lesson.createdAt.toLocaleDateString() %></span>
+            </div>
+            <form action="/lessons/<%= lesson._id %>/delete" method="POST" class="delete-form">
+              <button class="danger-button" type="submit">Delete</button>
+            </form>
+          </article>
+        <% }) %>
+      </section>
+    <% } %>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
