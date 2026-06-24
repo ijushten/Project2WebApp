@@ -32,18 +32,6 @@ function makeTitle(subject, topic) {
 }
 
 
-function buildTemporaryPlan(details) {
-  return `Lesson Title: ${details.subject} - ${details.topic}
-
-Objective: Students will understand ${details.topic}.
-
-Warm-Up: Ask students what they already know.
-
-Activity: Guide students through examples and practice questions.
-
-Assessment: Students complete a short exit ticket.`;
-}
-
 app.get("/", (req, res) => res.render("home", { title: "LessonAI" }));
 app.get("/signup", redirectIfLoggedIn, (req, res) => res.render("signup", { title: "Sign Up", error: null, values: {} }));
 app.get("/signin", redirectIfLoggedIn, (req, res) => res.render("signin", { title: "Sign In", error: null, values: {} }));
@@ -109,7 +97,7 @@ app.post("/lessons", requireAuth, async (req, res) => {
     if (!values.subject || !values.topic || !values.gradeLevel || !values.lessonLength || !values.learningGoal || !values.lessonStyle) {
       return res.status(400).render("dashboard", { title: "Dashboard", error: "Please complete every lesson field.", values, recentLessons });
     }
-    const planText = buildTemporaryPlan(values);
+    const planText = await generateLessonPlan(values);
     const lesson = await LessonPlan.create({
       user: req.session.userId,
       title: makeTitle(values.subject, values.topic),
