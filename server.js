@@ -238,9 +238,14 @@ app.post("/lessons", requireAuth, async (req, res) => {
     res.redirect(`/lessons/${lesson._id}`);
   } catch (error) {
     console.error(error);
-    res.status(500).render("dashboard", {
+
+    const message = error.isUserFacing
+      ? error.message
+      : "The lesson could not be generated right now. Please try again.";
+
+    res.status(error.statusCode || 500).render("dashboard", {
       title: "Dashboard",
-      error: error.message || "The lesson could not be generated. Please try again.",
+      error: message,
       values,
       recentLessons
     });

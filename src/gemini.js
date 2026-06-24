@@ -5,8 +5,12 @@ class LessonAiApiError extends Error {
     super(message);
     this.name = "LessonAiApiError";
     this.statusCode = statusCode;
+    this.isUserFacing = true;
   }
 }
+
+const TRY_AGAIN_MESSAGE = "The AI is busy right now. Please try again in a minute.";
+const GENERAL_ERROR_MESSAGE = "The lesson could not be generated right now. Please try again.";
 
 function clean(value) {
   return String(value || "").trim();
@@ -85,38 +89,22 @@ function makeFriendlyGeminiError(error) {
   const statusCode = readStatusCode(error);
   const text = readErrorText(error);
 
-  if (statusCode === 401 || statusCode === 403 || text.includes("api key")) {
-    return new LessonAiApiError(
-      "The AI API key is missing or invalid. Check GEMINI_API_KEY in Render Environment Variables.",
-      500
-    );
+  if (
+    statusCode === 429 ||
+    statusCode === 500 ||
+    statusCode === 502 ||
+    statusCode === 503 ||
+    statusCode === 504 ||
+    text.includes("unavailable") ||
+    text.includes("overloaded") ||
+    text.includes("high demand") ||
+    text.includes("resource exhausted") ||
+    text.includes("quota")
+  ) {
+    return new LessonAiApiError(TRY_AGAIN_MESSAGE, statusCode || 503);
   }
 
-  if (statusCode === 404 || text.includes("not found") || text.includes("model")) {
-    return new LessonAiApiError(
-      "The selected Gemini model is not available. Try setting GEMINI_MODEL to gemini-2.5-flash-lite in Render.",
-      500
-    );
-  }
-
-  if (statusCode === 429 || text.includes("quota") || text.includes("resource exhausted")) {
-    return new LessonAiApiError(
-      "The AI service is receiving too many requests right now. Please wait a minute and try again.",
-      429
-    );
-  }
-
-  if (statusCode === 503 || text.includes("unavailable") || text.includes("overloaded") || text.includes("high demand")) {
-    return new LessonAiApiError(
-      "The AI model is busy right now. Please try again in a minute.",
-      503
-    );
-  }
-
-  return new LessonAiApiError(
-    "The lesson could not be generated right now. Please try again.",
-    500
-  );
+  return new LessonAiApiError(GENERAL_ERROR_MESSAGE, statusCode || 500);
 }
 
 function getModelChoices() {
@@ -135,7 +123,7 @@ async function generateWithModel(ai, model, prompt) {
       const text = response.text || "";
 
       if (!text.trim()) {
-        throw new LessonAiApiError("Gemini returned an empty lesson plan. Try again with a more specific topic.", 500);
+        throw new LessonAiApiError(GENERAL_ERROR_MESSAGE, 500);
       }
 
       return text.trim();
@@ -160,10 +148,7 @@ export async function generateLessonPlan(details) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new LessonAiApiError(
-      "GEMINI_API_KEY is missing. Add it to your .env file or Render environment variables.",
-      500
-    );
+    throw new LessonAiApiError(GENERAL_ERROR_MESSAGE, 500);
   }
 
   const ai = new GoogleGenAI({ apiKey });
